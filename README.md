@@ -13,9 +13,15 @@ Here is a small Python module for the PiGlow addon by Pimoroni, it will let you 
  - cycle2.py - Switch each individual colour using the piglow.colour method
  - indiv2.py - Switch each LED on individually in a loop cycle
  - cpu.py - Show your current CPU usage on the PiGlow (requires psutils)
+<<<<<<< HEAD
     
 ## Requirements
          
+=======
+
+## Requirements
+
+>>>>>>> a33d9a78ec20545ddbd7af4cd37e0b107fef38e0
     sudo apt-get install python-psutils
 
 ## Functions
