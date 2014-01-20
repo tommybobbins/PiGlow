@@ -21,7 +21,7 @@ hourflash = 1           # Choose how to flash change of hour - 1= white leds, 2=
 
 
 def clock_colour(hour):
-#    print ("Colour = %i\n" % hour)
+    print ("Colour = %i\n" % hour)
     if hour == 9:
         piglow.all(0) 
         sleep(0.5)
@@ -99,6 +99,7 @@ piglow.all(0)
 hourcount = 0
 hourcurrent = 0
 minutecurrent = 15
+clock_colour(9)
 
 while True:
     time = datetime.now().time()
@@ -108,18 +109,11 @@ while True:
     min = int (min)
 
     # Check if current hour is different and set ready to flash hour
-    if (minutecurrent%15 == 0):
-#        print "0,15,30,45 minutes past the hour" 
-        minutecurrent = min 
-        hourcount = hour
-        hourcurrent = hour
+    if (min%15 == 0):
+        print ("0,15,30,45 minutes past the hour %i"  % hour)
         clock_colour(hour)
         sleep(60)
-#    if hourcurrent != hour:
-#        hourcount = hour
-#        hourcurrent = hour
-#        clock_colour(hour)
     else:
-        calc= minutecurrent%15
+        calc= min%15
 #        print ("Sleeping because calc= %i\n"  % calc )
         sleep(10)
