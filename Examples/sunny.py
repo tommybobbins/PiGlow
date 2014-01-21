@@ -4,6 +4,13 @@
 ##                                  ##
 ##  Example by @Tommybobbins        ##
 ######################################
+# Light curves are based on statistical
+# normal distributions. Requires python-scipy.
+# Uses the Sunrise/Sunset times from astral 
+# python package.
+#
+# sudo apt-get install python-scipy
+# sudo pip install astral
 from astral import *
 from piglow import PiGlow
 import time
