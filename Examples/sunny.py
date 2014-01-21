@@ -1,0 +1,131 @@
+#!/usr/bin/python
+######################################
+## Sun Emulator using PiGlow        ##
+##                                  ##
+##  Example by @Tommybobbins        ##
+######################################
+from astral import *
+from piglow import PiGlow
+import numpy as np
+import time
+import datetime
+from scipy import stats
+number_seconds_day=60*60*24
+centre = 0.0
+max_brightness=255
+intensity={}
+
+a = Astral()
+location = a["Manchester"]
+#print (" %s %s %s %s %s \n" % (dawn, sunrise, noon, sunset, dusk))
+#Information for Manchester
+# 2014-01-21 07:30:11+00:00 2014-01-21 08:10:06+00:00 2014-01-21 12:20:18+00:00 2014-01-21 16:30:35+00:00 2014-01-21 17:10:31+00:00
+# For the local timezone
+#print ("Time: %s" % t)
+
+def calculate_intensity(x,centre,mu,max_brightness):
+    #Normal distribution
+    gaussian = stats.norm(loc=centre, scale=mu)
+    #Calculate the intensity at max
+    max_value = gaussian.pdf(centre)
+    #Multiply by the max_brightness (0-255)
+    normalisation_value = max_brightness / max_value
+    y = normalisation_value * gaussian.pdf(x)   
+    print (x,y)
+    return(y)
+
+while True:
+
+    sun = location.sun(local=True)
+    dusk=sun['dusk']
+    noon=sun['noon']
+    midnight=sun['noon']
+    sunrise=sun['sunrise']
+    sunset=sun['sunset']
+    dawn=sun['dawn']
+    midnight=sun['noon']+datetime.timedelta(hours=12)
+    t = datetime.datetime.now()
+    piglow = PiGlow()
+
+
+    #Convert all the timings into Epoch times
+    epoch_now = time.mktime(t.timetuple())
+    epoch_dawn = time.mktime(dawn.timetuple())
+    epoch_sunrise= time.mktime(sunrise.timetuple())
+    epoch_midnight= time.mktime(midnight.timetuple())
+    epoch_noon= time.mktime(noon.timetuple())
+    epoch_sunset= time.mktime(sunset.timetuple())
+    epoch_dusk= time.mktime(dusk.timetuple())
+
+    #Now calculate the difference from the current time
+    dawn_diff = float(epoch_dawn - epoch_now)
+    sunrise_diff = float(epoch_sunrise - epoch_now)
+    noon_diff = float(epoch_noon - epoch_now)
+    sunset_diff = float(epoch_sunset - epoch_now)
+    dusk_diff = float(epoch_dusk - epoch_now)
+    midnight_diff = float(epoch_midnight - epoch_now)
+
+    #Now convert that the a percentage of the day away we are 
+    norm_dawn_diff = dawn_diff / number_seconds_day
+    norm_sunrise_diff = sunrise_diff / number_seconds_day
+    norm_noon_diff = noon_diff / number_seconds_day
+    norm_sunset_diff = sunset_diff / number_seconds_day
+    norm_dusk_diff = dusk_diff / number_seconds_day
+    norm_midnight_diff = midnight_diff / number_seconds_day
+
+    #Output how many seconds we are away
+#    print ("D %f, SR %f, N %f, SS %f, D %f M %f\n" % (dawn_diff, sunrise_diff, noon_diff, sunset_diff, dusk_diff, midnight_diff))
+    #Output what percentage
+#    print ("D %f, SR %f, N %f, SS %f, D %f , M %f\n" % (norm_dawn_diff, norm_sunrise_diff, norm_noon_diff, norm_sunset_diff, norm_dusk_diff, norm_midnight_diff))
+    # Calculate Gaussian intensity
+    # Dawn 
+    #dawn red narrow mu 0.2
+    #sunrise orange, yellow high mu 0.4
+    #noon white broad, yellow thinner , green low intensity largest mu 0.6
+    #midnight = noon + 12 hours blue red low intesity mu 2
+    #sunset orange, yellow mu 0.4
+    #dusk red 0.2
+    #print ("Red")
+    intensity['red'] = calculate_intensity(norm_dawn_diff,centre,0.02,255)
+    intensity['red'] += calculate_intensity(norm_dusk_diff,centre,0.02,255)
+    #print ("Orange")
+    intensity['orange'] = calculate_intensity(norm_sunrise_diff,centre,0.02,255)
+    intensity['orange'] += calculate_intensity(norm_sunset_diff,centre,0.02,255)
+    #print ("Yellow")
+    intensity['yellow'] = calculate_intensity(norm_sunrise_diff,centre,0.02,255)
+    intensity['yellow'] += calculate_intensity(norm_sunset_diff,centre,0.02,255)
+    intensity['yellow'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
+    #print ("Green")
+    intensity['green'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
+    #print ("Blue")
+    intensity['blue'] = calculate_intensity(norm_midnight_diff,centre,0.2,255)
+    #print ("White")
+    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
+
+    for key in intensity:
+        if (intensity[key] > 255):
+            intensity[key] = 255
+        else:
+            intensity[key] = int(round(intensity[key]))
+        print ("Key = %s, value = %i\n" % (key, intensity[key]))
+
+    print intensity['red']
+    piglow.red(intensity['red']) 
+    print intensity['orange']
+    piglow.orange(intensity['orange']) 
+    print intensity['yellow']
+    piglow.yellow(intensity['yellow']) 
+    print intensity['green']
+    piglow.green(intensity['green']) 
+    print intensity['blue']
+    piglow.blue(intensity['blue']) 
+    print intensity['white']
+    piglow.white(intensity['white']) 
+
+    time.sleep(60)
+    # Red is involved in Dawn, Dusk and Midnight (low intensity)
+    # Orange is involved in Sunrise, Sunset
+    # White, Green  involved in Noon
+    # Yellow involved in Sunrise, Sunset, Noon
+
+
