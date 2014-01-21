@@ -6,7 +6,6 @@
 ######################################
 from astral import *
 from piglow import PiGlow
-import numpy as np
 import time
 import datetime
 from scipy import stats
@@ -14,6 +13,8 @@ number_seconds_day=60*60*24
 centre = 0.0
 max_brightness=255
 intensity={}
+piglow = PiGlow()
+piglow.all(0)
 
 a = Astral()
 location = a["Manchester"]
@@ -31,7 +32,7 @@ def calculate_intensity(x,centre,mu,max_brightness):
     #Multiply by the max_brightness (0-255)
     normalisation_value = max_brightness / max_value
     y = normalisation_value * gaussian.pdf(x)   
-    print (x,y)
+#    print (x,y)
     return(y)
 
 while True:
@@ -45,7 +46,6 @@ while True:
     dawn=sun['dawn']
     midnight=sun['noon']+datetime.timedelta(hours=12)
     t = datetime.datetime.now()
-    piglow = PiGlow()
 
 
     #Convert all the timings into Epoch times
@@ -100,7 +100,7 @@ while True:
     #print ("Blue")
     intensity['blue'] = calculate_intensity(norm_midnight_diff,centre,0.2,255)
     #print ("White")
-    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
+    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.1,255)
 
     for key in intensity:
         if (intensity[key] > 255):
