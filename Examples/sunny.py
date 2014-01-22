@@ -106,33 +106,33 @@ while True:
     intensity['green'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
     #print ("Blue")
     intensity['blue'] = calculate_intensity(norm_midnight_diff,centre,0.2,255)
+    intensity['blue'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
     #print ("White")
-    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.1,255)
+    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.2,64)
 
     for key in intensity:
         if (intensity[key] > 255):
             intensity[key] = 255
         else:
             intensity[key] = int(round(intensity[key]))
-        print ("Key = %s, value = %i\n" % (key, intensity[key]))
+#        print ("Key = %s, value = %i\n" % (key, intensity[key]))
 
-    print intensity['red']
     piglow.red(intensity['red']) 
-    print intensity['orange']
     piglow.orange(intensity['orange']) 
-    print intensity['yellow']
     piglow.yellow(intensity['yellow']) 
-    print intensity['green']
     piglow.green(intensity['green']) 
-    print intensity['blue']
     piglow.blue(intensity['blue']) 
-    print intensity['white']
     piglow.white(intensity['white']) 
 
+#   Condensed logging for graphing purposes (time, followed by the colours)
+    print ("%i %i %i %i %i %i %i\n" %(epoch_now,
+                                      intensity['red'],
+                                      intensity['orange'],
+                                      intensity['yellow'],
+                                      intensity['green'],
+                                      intensity['blue'],
+                                      intensity['white'])
+                                     )
     time.sleep(60)
-    # Red is involved in Dawn, Dusk and Midnight (low intensity)
-    # Orange is involved in Sunrise, Sunset
-    # White, Green  involved in Noon
-    # Yellow involved in Sunrise, Sunset, Noon
 
 
