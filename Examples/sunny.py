@@ -18,6 +18,7 @@ import datetime
 from scipy import stats
 number_seconds_day=60*60*24
 centre = 0.0
+total_intensity=0
 max_brightness=255
 intensity={}
 piglow = PiGlow()
@@ -31,7 +32,7 @@ location = a["Manchester"]
 # For the local timezone
 #print ("Time: %s" % t)
 
-print ("Epoch_Time\tRed\tOrange\tYellow\tGreen\tBlue\tWhite")
+print ("Epoch_Time\tRed\tOrange\tYellow\tGreen\tBlue\tWhite\tTotal")
 
 def calculate_intensity(x,centre,mu,max_brightness):
     #Normal distribution
@@ -120,9 +121,11 @@ while True:
     #print ("White")
     intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.07,64)
 
+    total_intensity = 0
     for key in intensity:
         if (intensity[key] > 255):
             intensity[key] = 255
+            total_intensity += intensity[key]
         else:
             intensity[key] = int(round(intensity[key]))
 #        print ("Key = %s, value = %i\n" % (key, intensity[key]))
@@ -134,14 +137,16 @@ while True:
     piglow.blue(intensity['blue']) 
     piglow.white(intensity['white']) 
 
+
 #   Condensed logging for graphing purposes (time, followed by the colours)
-    print ("%i %i %i %i %i %i %i" %(epoch_now,
+    print ("%i %i %i %i %i %i %i %i" %(epoch_now,
                                       intensity['red'],
                                       intensity['orange'],
                                       intensity['yellow'],
                                       intensity['green'],
                                       intensity['blue'],
-                                      intensity['white'])
+                                      intensity['white'],
+                                      total_intensity)
                                      )
     time.sleep(60)
 
