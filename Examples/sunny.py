@@ -31,6 +31,8 @@ location = a["Manchester"]
 # For the local timezone
 #print ("Time: %s" % t)
 
+print ("Epoch_Time\tRed\tOrange\tYellow\tGreen\tBlue\tWhite")
+
 def calculate_intensity(x,centre,mu,max_brightness):
     #Normal distribution
     gaussian = stats.norm(loc=centre, scale=mu)
@@ -52,6 +54,7 @@ while True:
     sunset=sun['sunset']
     dawn=sun['dawn']
     midnight=sun['noon']+datetime.timedelta(hours=12)
+    lastmidnight=sun['noon']-datetime.timedelta(hours=12)
     t = datetime.datetime.now()
 
 
@@ -60,6 +63,7 @@ while True:
     epoch_dawn = time.mktime(dawn.timetuple())
     epoch_sunrise= time.mktime(sunrise.timetuple())
     epoch_midnight= time.mktime(midnight.timetuple())
+    epoch_lastmidnight= time.mktime(lastmidnight.timetuple())
     epoch_noon= time.mktime(noon.timetuple())
     epoch_sunset= time.mktime(sunset.timetuple())
     epoch_dusk= time.mktime(dusk.timetuple())
@@ -71,6 +75,7 @@ while True:
     sunset_diff = float(epoch_sunset - epoch_now)
     dusk_diff = float(epoch_dusk - epoch_now)
     midnight_diff = float(epoch_midnight - epoch_now)
+    lastmidnight_diff = float(epoch_lastmidnight - epoch_now)
 
     #Now convert that the a percentage of the day away we are 
     norm_dawn_diff = dawn_diff / number_seconds_day
@@ -78,7 +83,12 @@ while True:
     norm_noon_diff = noon_diff / number_seconds_day
     norm_sunset_diff = sunset_diff / number_seconds_day
     norm_dusk_diff = dusk_diff / number_seconds_day
-    norm_midnight_diff = midnight_diff / number_seconds_day
+    if (epoch_now >  epoch_noon):
+        norm_midnight_diff = midnight_diff / number_seconds_day
+    elif (epoch_now < epoch_noon):
+        norm_midnight_diff = lastmidnight_diff / number_seconds_day
+    else:
+        print ("Something wrong")
 
     #Output how many seconds we are away
 #    print ("D %f, SR %f, N %f, SS %f, D %f M %f\n" % (dawn_diff, sunrise_diff, noon_diff, sunset_diff, dusk_diff, midnight_diff))
@@ -99,16 +109,16 @@ while True:
     intensity['orange'] = calculate_intensity(norm_sunrise_diff,centre,0.02,255)
     intensity['orange'] += calculate_intensity(norm_sunset_diff,centre,0.02,255)
     #print ("Yellow")
-    intensity['yellow'] = calculate_intensity(norm_sunrise_diff,centre,0.02,255)
-    intensity['yellow'] += calculate_intensity(norm_sunset_diff,centre,0.02,255)
+    intensity['yellow'] = calculate_intensity(norm_sunrise_diff,centre,0.05,255)
+    intensity['yellow'] += calculate_intensity(norm_sunset_diff,centre,0.05,255)
     intensity['yellow'] += calculate_intensity(norm_noon_diff,centre,0.08,255)
     #print ("Green")
-    intensity['green'] = calculate_intensity(norm_noon_diff,centre,0.08,255)
+    intensity['green'] = calculate_intensity(norm_noon_diff,centre,0.1,255)
     #print ("Blue")
-    intensity['blue'] = calculate_intensity(norm_midnight_diff,centre,0.2,255)
-    intensity['blue'] += calculate_intensity(norm_noon_diff,centre,0.08,255)
+    intensity['blue'] = calculate_intensity(norm_midnight_diff,centre,0.15,255)
+    intensity['blue'] += calculate_intensity(norm_noon_diff,centre,0.09,255)
     #print ("White")
-    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.2,64)
+    intensity['white'] = calculate_intensity(norm_noon_diff,centre,0.07,64)
 
     for key in intensity:
         if (intensity[key] > 255):
@@ -125,7 +135,7 @@ while True:
     piglow.white(intensity['white']) 
 
 #   Condensed logging for graphing purposes (time, followed by the colours)
-    print ("%i %i %i %i %i %i %i\n" %(epoch_now,
+    print ("%i %i %i %i %i %i %i" %(epoch_now,
                                       intensity['red'],
                                       intensity['orange'],
                                       intensity['yellow'],
@@ -134,5 +144,4 @@ while True:
                                       intensity['white'])
                                      )
     time.sleep(60)
-
 
