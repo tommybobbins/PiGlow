@@ -125,9 +125,9 @@ while True:
     for key in intensity:
         if (intensity[key] > 255):
             intensity[key] = 255
-            total_intensity += intensity[key]
         else:
             intensity[key] = int(round(intensity[key]))
+        total_intensity += intensity[key]
 #        print ("Key = %s, value = %i\n" % (key, intensity[key]))
 
     piglow.red(intensity['red']) 
