@@ -15,6 +15,9 @@ from astral import *
 from piglow import PiGlow
 import time
 import datetime
+import logging
+dt = datetime.datetime.now()
+logging.basicConfig(filename='/home/pi/LOGGING/lightoutput_%i_%i_%i.log' %(dt.year, dt.month, dt.day),level=logging.INFO)
 from scipy import stats
 number_seconds_day=60*60*24
 centre = 0.0
@@ -32,7 +35,7 @@ location = a["Manchester"]
 # For the local timezone
 #print ("Time: %s" % t)
 
-print ("Epoch_Time\tRed\tOrange\tYellow\tGreen\tBlue\tWhite\tTotal")
+logging.info("Epoch_Time\tRed\tOrange\tYellow\tGreen\tBlue\tWhite\tTotal")
 
 def calculate_intensity(x,centre,mu,max_brightness):
     #Normal distribution
@@ -56,11 +59,12 @@ while True:
     dawn=sun['dawn']
     midnight=sun['noon']+datetime.timedelta(hours=12)
     lastmidnight=sun['noon']-datetime.timedelta(hours=12)
-    t = datetime.datetime.now()
+#    print t.day,t.month,t.year
+    dt = datetime.datetime.now()
 
 
     #Convert all the timings into Epoch times
-    epoch_now = time.mktime(t.timetuple())
+    epoch_now = time.mktime(dt.timetuple())
     epoch_dawn = time.mktime(dawn.timetuple())
     epoch_sunrise= time.mktime(sunrise.timetuple())
     epoch_midnight= time.mktime(midnight.timetuple())
@@ -139,7 +143,7 @@ while True:
 
 
 #   Condensed logging for graphing purposes (time, followed by the colours)
-    print ("%i %i %i %i %i %i %i %i" %(epoch_now,
+    logging.info("%i %i %i %i %i %i %i %i" %(epoch_now,
                                       intensity['red'],
                                       intensity['orange'],
                                       intensity['yellow'],
